@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WelcHome — Calendario Pulizie 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f4f0; --surface: #ffffff; --border: #e2e0d8; --text: #1a1a18; --muted: #7a7870;
+    --ci: #2d7a42; --ci-bg: #d4edda; --co: #b03020; --co-bg: #fad7d4;
+    --ih: #1a6fa0; --ih-bg: #cce4f4; --warn: #b85c00; --warn-bg: #fde8cc;
+    --alert: #9b2251; --alert-bg: #fbd5e5; --today: #2563eb;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px 18px 60px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+  .logo { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
+  .logo span { color: var(--ih); }
+  .filter-wrap { display: flex; align-items: center; gap: 8px; }
+  .filter-wrap label { font-size: 13px; color: var(--muted); }
+  select { border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-family: inherit; font-size: 13px; background: var(--surface); color: var(--text); cursor: pointer; outline: none; }
+  select:focus { border-color: var(--ih); }
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .tab { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; transition: all 0.15s; }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); }
+  .tab:hover { color: var(--text); }
+  .panel { display: none; } .panel.active { display: block; }
+  .month-jump { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+  .mj-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 3px 10px; font-size: 12px; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.12s; }
+  .mj-btn:hover { background: var(--bg); color: var(--text); }
+  .mj-btn.active { background: #000; color: #fff !important; border-color: #000; font-weight: 600; }
+  .mj-btn.has-events { font-weight: 600; color: var(--text); }
+  .nav-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: background 0.12s; }
+  .nav-btn:hover { background: var(--border); }
+  .month-title { font-size: 19px; font-weight: 600; letter-spacing: -0.3px; min-width: 190px; }
+  .stats { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; flex: 1; min-width: 80px; }
+  .stat-val { font-size: 21px; font-weight: 600; } .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; font-size: 12px; color: var(--muted); }
+  .leg { display: flex; align-items: center; gap: 5px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .dow-row { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin-bottom: 3px; }
+  .dow { text-align: center; font-size: 11px; font-weight: 500; color: var(--muted); padding: 3px 0; text-transform: uppercase; letter-spacing: 0.4px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+  .day { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px; min-height: 96px; overflow: hidden; }
+  .day.empty { background: transparent; border-color: transparent; }
+  .day.today { border: 2px solid var(--today); }
+  .day-num { font-size: 11px; font-weight: 500; color: var(--muted); margin-bottom: 3px; font-family: 'DM Mono', monospace; }
+  .day.today .day-num { color: var(--today); }
+  .pill { font-size: 9.5px; border-radius: 4px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; font-weight: 500; line-height: 1.5; display: block; }
+  .pill.ci { background: var(--ci-bg); color: var(--ci); }
+  .pill.co { background: var(--co-bg); color: var(--co); }
+  .pill.ih { background: var(--ih-bg); color: var(--ih); }
+  .pill.cico { background: linear-gradient(90deg, var(--ci-bg) 50%, var(--co-bg) 50%); color: var(--ci); }
+  .a-pill { font-size: 9px; border-radius: 4px; padding: 2px 5px; margin-bottom: 2px; font-weight: 600; line-height: 1.5; display: block; }
+  .a-pill.multi { background: var(--warn-bg); color: var(--warn); }
+  .a-pill.same { background: var(--alert-bg); color: var(--alert); }
+  #tooltip { position: fixed; z-index: 9999; background: var(--text); color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.12s; max-width: 210px; line-height: 1.5; }
+  #tooltip.show { opacity: 1; }
+  .section-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title .badge { font-size: 11px; background: var(--warn-bg); color: var(--warn); border-radius: 20px; padding: 2px 9px; font-weight: 600; }
+  .critical-list { display: flex; flex-direction: column; gap: 10px; }
+  .crit-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .crit-card.level-high { border-left: 4px solid var(--alert); }
+  .crit-card.level-med { border-left: 4px solid var(--warn); }
+  .crit-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; user-select: none; }
+  .crit-date { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; min-width: 130px; }
+  .crit-badges { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
+  .cbadge { font-size: 10px; border-radius: 20px; padding: 2px 8px; font-weight: 600; }
+  .cbadge.multi { background: var(--warn-bg); color: var(--warn); }
+  .cbadge.same { background: var(--alert-bg); color: var(--alert); }
+  .crit-toggle { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+  .crit-card.open .crit-toggle { transform: rotate(180deg); }
+  .crit-body { padding: 0 14px 12px; display: none; border-top: 1px solid var(--border); }
+  .crit-card.open .crit-body { display: block; padding-top: 10px; }
+  .crit-section { margin-bottom: 10px; }
+  .crit-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
+  .crit-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 8px; border-radius: 6px; margin-bottom: 3px; font-size: 13px; }
+  .crit-row.ci-row { background: var(--ci-bg); }
+  .crit-row.co-row { background: var(--co-bg); }
+  .crit-row.cico-row { background: #fdf3e7; }
+  .crit-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .crit-info { flex: 1; }
+  .crit-casa { font-weight: 600; font-size: 13px; }
+  .crit-ospite { font-size: 12px; color: var(--muted); }
+  .note-box { background: #fffbf0; border: 1px solid #f0d080; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #7a5c00; margin-top: 8px; }
+  .no-critical { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  .info-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; line-height: 1.7; }
+  .info-box h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .type-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+  .type-badge { border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-top: 1px; }
+  @media (max-width: 600px) { .day { min-height: 72px; padding: 4px; } .pill { font-size: 8px; } .month-title { font-size: 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Welc<span>Home</span> · Calendario Pulizie 2026</div>
+  <div class="filter-wrap">
+    <label for="fcasa">Struttura:</label>
+    <select id="fcasa"></select>
+  </div>
+</header>
+<div class="tabs">
+  <button class="tab active" data-tab="cal">📅 Calendario</button>
+  <button class="tab" data-tab="critical">⚠️ Giorni Critici</button>
+  <button class="tab" data-tab="guide">📋 Guida Rapida</button>
+</div>
+<div class="panel active" id="panel-cal">
+  <div class="month-jump" id="mjump"></div>
+  <div class="nav-row">
+    <button class="nav-btn" id="prev">&#8592;</button>
+    <div class="month-title" id="mtitle"></div>
+    <button class="nav-btn" id="next">&#8594;</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--ci-bg);border:1px solid var(--ci)"></div>Check-in (arrivo)</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--co-bg);border:1px solid var(--co)"></div>Check-out (partenza)</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--ih-bg);border:1px solid var(--ih)"></div>Presenza in casa</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--warn-bg);border:1px solid var(--warn)"></div>⚠ Più check-in</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--alert-bg);border:1px solid var(--alert)"></div>⚡ CI+CO stessa struttura</div>
+  </div>
+  <div class="dow-row" id="dow"></div>
+  <div class="cal-grid" id="calgrid"></div>
+</div>
+<div class="panel" id="panel-critical">
+  <div class="section-title">Giorni critici <span class="badge" id="crit-count-badge">0</span></div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Giorni con più check-in contemporanei o check-in e check-out nella stessa struttura. Clicca su un giorno per i dettagli.</p>
+  <div class="critical-list" id="crit-list"></div>
+</div>
+<div class="panel" id="panel-guide">
+  <div class="info-box">
+    <h3>Come leggere il calendario</h3>
+    <div class="type-row"><span class="type-badge" style="background:var(--ci-bg);color:var(--ci)">↓ Check-in</span><span>L'ospite <strong>arriva</strong> quel giorno. La casa deve essere pronta e pulita <strong>prima dell'arrivo</strong>.</span></div>
+    <div class="type-row"><span class="type-badge" style="background:var(--co-bg);color:var(--co)">↑ Check-out</span><span>L'ospite <strong>parte</strong> quel giorno. Dopo la partenza va fatta la pulizia e il cambio biancheria.</span></div>
+    <div class="type-row"><span class="type-badge" style="background:var(--ih-bg);color:var(--ih)">● Presenza</span><span>L'ospite è già in casa. Nessun intervento salvo richiesta esplicita.</span></div>
+    <div class="type-row"><span class="type-badge" style="background:linear-gradient(90deg,var(--ci-bg) 50%,var(--co-bg) 50%);color:var(--ci)">↓↑ CI+CO</span><span>Stessa struttura: un ospite <strong>parte</strong> e un altro <strong>arriva</strong> lo stesso giorno. Pulire subito dopo la partenza.</span></div>
+  </div>
+  <div class="info-box">
+    <h3>Giorni con più check-in ⚠</h3>
+    <p>Quando ci sono 2 o più check-in nello stesso giorno (anche in case diverse), organizzarsi in anticipo. Controlla la tab <strong>Giorni Critici</strong> per vedere le strutture coinvolte.</p>
+  </div>
+  <div class="info-box">
+    <h3>Contatti</h3>
+    <p style="color:var(--muted)">Per aggiornamenti o chiarimenti contattare Matteo — WelcHome.</p>
+  </div>
+</div>
+<div id="tooltip"></div>
+<script>
+const BOOKINGS = [
+  {ci:"2026-01-04",co:"2026-01-06",casa:"Sotto la Quercia",ospite:"Matteo Locaputo"},
+  {ci:"2026-01-07",co:"2026-01-30",casa:"Casa nel Borgo",ospite:"Filomena Adduocchio"},
+  {ci:"2026-01-16",co:"2026-01-18",casa:"Villa Elena",ospite:"Giovanni Simone"},
+  {ci:"2026-01-31",co:"2026-02-02",casa:"Via San Rocco",ospite:"Maria Proietti"},
+  {ci:"2026-02-02",co:"2026-02-11",casa:"Casa nel Borgo",ospite:"Filomena Adduocchio"},
+  {ci:"2026-02-03",co:"2026-02-05",casa:"Villa Elena",ospite:"Monia Cardo"},
+  {ci:"2026-02-13",co:"2026-02-19",casa:"Casa nel Borgo",ospite:"Cornelia Bruckner"},
+  {ci:"2026-02-19",co:"2026-03-08",casa:"Casa nel Borgo",ospite:"Filomena Adduocchio"},
+  {ci:"2026-03-10",co:"2026-03-12",casa:"Villa Elena",ospite:"Monia Cardo"},
+  {ci:"2026-03-16",co:"2026-03-29",casa:"Casa nel Borgo",ospite:"Filomena Adduocchio"},
+  {ci:"2026-03-24",co:"2026-03-28",casa:"Via Cavour",ospite:"Flavia di Campli"},
+  {ci:"2026-03-26",co:"2026-03-29",casa:"Via San Rocco",ospite:"Simeno Riccomob"},
+  {ci:"2026-03-27",co:"2026-03-30",casa:"Casa Bella Gialla",ospite:"Domenico Martorella"},
+  {ci:"2026-04-02",co:"2026-04-06",casa:"Casa nel Borgo",ospite:"Tommaso Rossini"},
+  {ci:"2026-04-03",co:"2026-04-06",casa:"Agantonio",ospite:"Alessandro / Guido Peroni"},
+  {ci:"2026-04-04",co:"2026-04-06",casa:"Sotto la Quercia",ospite:"Giada Bruni"},
+  {ci:"2026-04-04",co:"2026-04-07",casa:"Via San Rocco",ospite:"Sharon Ilaria Zangirolami"},
+  {ci:"2026-04-11",co:"2026-04-24",casa:"Via San Rocco",ospite:"Concetta D'Orsogna"},
+  {ci:"2026-04-12",co:"2026-04-16",casa:"Via Cavour",ospite:"Luca D'Orsogna"},
+  {ci:"2026-04-17",co:"2026-04-19",casa:"Sotto la Quercia",ospite:"Raffaele Guasco"},
+  {ci:"2026-04-17",co:"2026-04-20",casa:"Villa Elena",ospite:"Luca Ferrari"},
+  {ci:"2026-04-22",co:"2026-04-24",casa:"Casa nel Borgo",ospite:"Marina Alves"},
+  {ci:"2026-04-30",co:"2026-05-03",casa:"Agantonio",ospite:"Martina Pieri"},
+  {ci:"2026-04-30",co:"2026-05-06",casa:"Sotto la Quercia",ospite:"Karatina Svitekova"},
+  {ci:"2026-05-10",co:"2026-05-15",casa:"Via San Rocco",ospite:"Korkrum Kerri"},
+  {ci:"2026-05-11",co:"2026-05-13",casa:"Villa Elena",ospite:"Monia Cardo"},
+  {ci:"2026-05-20",co:"2026-05-23",casa:"Agantonio",ospite:"Enrico Minante"},
+  {ci:"2026-05-28",co:"2026-05-30",casa:"Via San Rocco",ospite:"Mirella Bonomelli"},
+  {ci:"2026-05-30",co:"2026-06-02",casa:"Casa Letizia",ospite:"Elisabetta Cappuccini"},
+  {ci:"2026-05-30",co:"2026-06-02",casa:"Agantonio",ospite:"Colombara Fabio"},
+  {ci:"2026-06-10",co:"2026-06-18",casa:"Miramare",ospite:"Francesco Paradisi"},
+  {ci:"2026-06-14",co:"2026-06-26",casa:"Villa Nella",ospite:"Adrian Motylewski"},
+  {ci:"2026-06-20",co:"2026-06-27",casa:"Sotto la Quercia",ospite:"Luigi Miscia"},
+  {ci:"2026-06-26",co:"2026-06-29",casa:"Via Cavour",ospite:"Ernesta Gargarella"},
+  {ci:"2026-06-28",co:"2026-07-08",casa:"Casa Letizia",ospite:"Sara Gandossini"},
+  {ci:"2026-07-03",co:"2026-07-10",casa:"Villa Nella",ospite:"Maria Teresa Jaravata Gabrillo"},
+  {ci:"2026-07-04",co:"2026-07-11",casa:"Miramare",ospite:"Simona Chieli"},
+  {ci:"2026-07-04",co:"2026-07-19",casa:"Sotto la Quercia",ospite:"Lubini Nicoletta"},
+  {ci:"2026-07-10",co:"2026-07-15",casa:"Casa Letizia",ospite:"Silvia Beltramea"},
+  {ci:"2026-07-11",co:"2026-07-17",casa:"Miramare",ospite:"Bruno Oleksi"},
+  {ci:"2026-07-12",co:"2026-07-21",casa:"Agantonio",ospite:"Rita Piancastelli"},
+  {ci:"2026-07-18",co:"2026-07-25",casa:"Casa Letizia",ospite:"Emidio Colabrese"},
+  {ci:"2026-07-24",co:"2026-07-30",casa:"Agantonio",ospite:"Daniele Charreron"},
+  {ci:"2026-07-26",co:"2026-08-01",casa:"Casa Letizia",ospite:"Massimo Marfella"},
+  {ci:"2026-07-27",co:"2026-08-18",casa:"Villa Elena",ospite:"Olag Dauev"},
+  {ci:"2026-08-01",co:"2026-08-07",casa:"Casa Verde Oliva",ospite:"Angelo Città"},
+  {ci:"2026-08-01",co:"2026-08-09",casa:"Casa Letizia",ospite:"Aldana Barone"},
+  {ci:"2026-08-06",co:"2026-08-16",casa:"Sotto la Quercia",ospite:"Ilaria Bressani"},
+  {ci:"2026-08-08",co:"2026-08-18",casa:"Miramare",ospite:"Andrea Tarozzi"},
+  {ci:"2026-08-08",co:"2026-08-16",casa:"Casa nel Borgo",ospite:"Pascal Nucara"},
+  {ci:"2026-08-09",co:"2026-08-16",casa:"Via San Rocco",ospite:"Loredana Benassi"},
+  {ci:"2026-08-09",co:"2026-08-19",casa:"Agantonio",ospite:"Martelli Sara"},
+  {ci:"2026-08-09",co:"2026-08-22",casa:"Casa Letizia",ospite:"Marek Turcan"},
+  {ci:"2026-08-09",co:"2026-08-22",casa:"Casa Bella Gialla",ospite:"Giovanna Di Matteo"},
+  {ci:"2026-08-10",co:"2026-08-22",casa:"Casa Verde Oliva",ospite:"Dea Valkanova"},
+  {ci:"2026-08-14",co:"2026-08-21",casa:"Villa Nella",ospite:"Gianni Barbetta"},
+  {ci:"2026-08-17",co:"2026-08-23",casa:"Nel Cuore di Lanciano",ospite:"Alessandro Brunetti"},
+  {ci:"2026-08-17",co:"2026-08-24",casa:"Sotto la Quercia",ospite:"Gennaro Pascale"},
+  {ci:"2026-08-18",co:"2026-08-25",casa:"Via San Rocco",ospite:"Giulia Attenasio"},
+  {ci:"2026-08-20",co:"2026-08-25",casa:"Casa nel Borgo",ospite:"Margaret Aitken"},
+  {ci:"2026-08-20",co:"2026-08-27",casa:"Miramare",ospite:"Crisian Regazzi"},
+  {ci:"2026-08-20",co:"2026-08-29",casa:"Agantonio",ospite:"Alessandra Galli"},
+  {ci:"2026-08-22",co:"2026-08-26",casa:"Via Cavour",ospite:"Elena Luraghi"},
+  {ci:"2026-08-23",co:"2026-08-28",casa:"Nel Cuore di Lanciano",ospite:"Sara Viscardi"},
+  {ci:"2026-08-28",co:"2026-08-30",casa:"Via San Rocco",ospite:"Elisa Magnetta"},
+  {ci:"2026-09-03",co:"2026-09-06",casa:"Sotto la Quercia",ospite:"Raffaele Guasco"},
+  {ci:"2026-09-07",co:"2026-09-19",casa:"Sotto la Quercia",ospite:"Daniele Lando"},
+  {ci:"2026-09-17",co:"2026-09-20",casa:"Casa Bella Gialla",ospite:"Giuseppe Fiorini"}
+];
+const MONTHS=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+const DOWS=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+const allCases=["Tutte le strutture",...[...new Set(BOOKINGS.map(b=>b.casa))].sort()];
+const todayDate=new Date(); todayDate.setHours(0,0,0,0);
+let curYear=2026,curMonth=4,filterCasa="all";
+function pDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function fmtDate(s){const d=pDate(s);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;}
+function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function shortCasa(s){return s.length>17?s.slice(0,15)+'…':s;}
+function getDayData(dateStr,fCasa){
+  const checkins=[],checkouts=[],inhouse=[];
+  const cur=pDate(dateStr);
+  for(const b of BOOKINGS){
+    if(fCasa&&fCasa!=="all"&&b.casa!==fCasa) continue;
+    const ci=pDate(b.ci),co=pDate(b.co);
+    if(b.ci===dateStr) checkins.push(b);
+    else if(b.co===dateStr) checkouts.push(b);
+    else if(cur>ci&&cur<co) inhouse.push(b);
+  }
+  return{checkins,checkouts,inhouse};
+}
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='critical') renderCritical();
+  });
+});
+const sel=document.getElementById('fcasa');
+allCases.forEach(c=>{const o=document.createElement('option');o.value=c==="Tutte le strutture"?"all":c;o.textContent=c;sel.appendChild(o);});
+sel.addEventListener('change',e=>{filterCasa=e.target.value;renderCal();});
+const mjump=document.getElementById('mjump');
+MONTHS.forEach((m,i)=>{
+  const btn=document.createElement('button');
+  btn.className='mj-btn'; btn.textContent=m.slice(0,3); btn.dataset.m=i;
+  const hasEvents=BOOKINGS.some(b=>{const ci=new Date(b.ci),co=new Date(b.co);return(ci.getFullYear()===2026&&ci.getMonth()===i)||(co.getFullYear()===2026&&co.getMonth()===i);});
+  if(hasEvents) btn.classList.add('has-events');
+  btn.addEventListener('click',()=>{curMonth=i;renderCal();});
+  mjump.appendChild(btn);
+});
+document.getElementById('prev').addEventListener('click',()=>{if(curMonth===0){curMonth=11;curYear--;}else curMonth--;renderCal();});
+document.getElementById('next').addEventListener('click',()=>{if(curMonth===11){curMonth=0;curYear++;}else curMonth++;renderCal();});
+const tip=document.getElementById('tooltip');
+document.addEventListener('mousemove',e=>{if(tip.classList.contains('show')){tip.style.left=(Math.min(e.clientX+14,window.innerWidth-220))+'px';tip.style.top=(e.clientY-10)+'px';}});
+function showTip(e,label,casa,ospite,dates){tip.innerHTML=`<div style="font-weight:600;margin-bottom:2px">${label}</div><div style="opacity:.85">${ospite}</div><div style="opacity:.6;font-size:11px;margin-top:1px">${casa}</div><div style="opacity:.55;font-size:10.5px;margin-top:2px">${dates}</div>`;tip.classList.add('show');}
+function hideTip(){tip.classList.remove('show');}
+function renderCal(){
+  document.querySelectorAll('.mj-btn').forEach(btn=>btn.classList.toggle('active',+btn.dataset.m===curMonth));
+  const firstDay=new Date(curYear,curMonth,1);
+  const daysInMonth=new Date(curYear,curMonth+1,0).getDate();
+  const startDow=(firstDay.getDay()+6)%7;
+  document.getElementById('mtitle').textContent=`${MONTHS[curMonth]} ${curYear}`;
+  document.getElementById('dow').innerHTML=DOWS.map(d=>`<div class="dow">${d}</div>`).join('');
+  let ciCount=0,coCount=0; const seenB=new Set();
+  for(let d=1;d<=daysInMonth;d++){const date=ds(curYear,curMonth,d);const{checkins,checkouts}=getDayData(date,filterCasa);ciCount+=checkins.length;coCount+=checkouts.length;checkins.forEach(b=>seenB.add(b.ci+b.casa+b.ospite));}
+  document.getElementById('stats').innerHTML=`<div class="stat"><div class="stat-val">${seenB.size}</div><div class="stat-lbl">prenotazioni</div></div><div class="stat"><div class="stat-val">${ciCount}</div><div class="stat-lbl">check-in</div></div><div class="stat"><div class="stat-val">${coCount}</div><div class="stat-lbl">check-out</div></div>`;
+  const grid=document.getElementById('calgrid'); grid.innerHTML='';
+  for(let i=0;i<startDow;i++){const e=document.createElement('div');e.className='day empty';grid.appendChild(e);}
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=ds(curYear,curMonth,d);
+    const{checkins,checkouts,inhouse}=getDayData(dateStr,filterCasa);
+    const isToday=pDate(dateStr).getTime()===todayDate.getTime();
+    const cell=document.createElement('div'); cell.className='day'+(isToday?' today':'');
+    const numEl=document.createElement('div'); numEl.className='day-num'; numEl.textContent=d; cell.appendChild(numEl);
+    if(checkins.length>1){const a=document.createElement('span');a.className='a-pill multi';a.textContent=`⚠ ${checkins.length} check-in`;cell.appendChild(a);}
+    const ciCasas=new Set(checkins.map(b=>b.casa));const coCasas=new Set(checkouts.map(b=>b.casa));
+    if([...ciCasas].some(c=>coCasas.has(c))){const a=document.createElement('span');a.className='a-pill same';a.textContent='⚡ CI+CO';cell.appendChild(a);}
+    for(const b of checkins){const alsoOut=checkouts.some(x=>x.casa===b.casa);const p=document.createElement('span');p.className='pill '+(alsoOut?'cico':'ci');p.textContent='↓ '+shortCasa(b.casa);p.addEventListener('mouseenter',e=>showTip(e,'↓ Check-in',b.casa,b.ospite,`${fmtDate(b.ci)} → ${fmtDate(b.co)}`));p.addEventListener('mouseleave',hideTip);cell.appendChild(p);}
+    for(const b of checkouts){if(checkins.some(x=>x.casa===b.casa)) continue;const p=document.createElement('span');p.className='pill co';p.textContent='↑ '+shortCasa(b.casa);p.addEventListener('mouseenter',e=>showTip(e,'↑ Check-out',b.casa,b.ospite,`${fmtDate(b.ci)} → ${fmtDate(b.co)}`));p.addEventListener('mouseleave',hideTip);cell.appendChild(p);}
+    for(const b of inhouse){const p=document.createElement('span');p.className='pill ih';p.textContent='● '+shortCasa(b.casa);p.addEventListener('mouseenter',e=>showTip(e,'● Presenza',b.casa,b.ospite,`${fmtDate(b.ci)} → ${fmtDate(b.co)}`));p.addEventListener('mouseleave',hideTip);cell.appendChild(p);}
+    grid.appendChild(cell);
+  }
+  const rem=(7-(startDow+daysInMonth)%7)%7;
+  for(let i=0;i<rem;i++){const e=document.createElement('div');e.className='day empty';grid.appendChild(e);}
+}
+function renderCritical(){
+  const critDays=[];
+  for(let m=0;m<12;m++){
+    const dim=new Date(2026,m+1,0).getDate();
+    for(let d=1;d<=dim;d++){
+      const dateStr=ds(2026,m,d);
+      const{checkins,checkouts}=getDayData(dateStr,filterCasa);
+      const multiCI=checkins.length>1;
+      const ciCasas=new Set(checkins.map(b=>b.casa));const coCasas=new Set(checkouts.map(b=>b.casa));
+      const sameCasa=[...ciCasas].some(c=>coCasas.has(c));
+      if(multiCI||sameCasa) critDays.push({dateStr,checkins,checkouts,multiCI,sameCasa,m,d});
+    }
+  }
+  document.getElementById('crit-count-badge').textContent=critDays.length;
+  const list=document.getElementById('crit-list');
+  if(critDays.length===0){list.innerHTML=`<div class="no-critical">✅ Nessun giorno critico trovato.</div>`;return;}
+  list.innerHTML='';
+  for(const day of critDays){
+    const level=day.sameCasa?'high':'med';
+    const dateLabel=`${String(day.d).padStart(2,'0')} ${MONTHS[day.m]} 2026`;
+    const sharedCasas=[...new Set(day.checkins.map(b=>b.casa))].filter(c=>day.checkouts.some(x=>x.casa===c));
+    let bodyHTML='';
+    if(sharedCasas.length>0){
+      bodyHTML+=`<div class="crit-section"><div class="crit-section-title">⚡ Check-in e check-out stessa struttura — pulire subito dopo la partenza</div>`;
+      for(const casa of sharedCasas){const ciB=day.checkins.find(b=>b.casa===casa);const coB=day.checkouts.find(b=>b.casa===casa);bodyHTML+=`<div class="crit-row cico-row"><span class="crit-icon">🔄</span><div class="crit-info"><div class="crit-casa">${casa}</div><div class="crit-ospite">Partenza: ${coB.ospite} · Arrivo: ${ciB.ospite}</div></div></div>`;}
+      bodyHTML+=`</div>`;
+    }
+    const otherCI=day.checkins.filter(b=>!sharedCasas.includes(b.casa));
+    if(otherCI.length>0){bodyHTML+=`<div class="crit-section"><div class="crit-section-title">↓ Check-in da preparare (${otherCI.length})</div>`;for(const b of otherCI) bodyHTML+=`<div class="crit-row ci-row"><span class="crit-icon">↓</span><div class="crit-info"><div class="crit-casa">${b.casa}</div><div class="crit-ospite">${b.ospite}</div></div></div>`;bodyHTML+=`</div>`;}
+    const otherCO=day.checkouts.filter(b=>!sharedCasas.includes(b.casa));
+    if(otherCO.length>0){bodyHTML+=`<div class="crit-section"><div class="crit-section-title">↑ Check-out da pulire dopo (${otherCO.length})</div>`;for(const b of otherCO) bodyHTML+=`<div class="crit-row co-row"><span class="crit-icon">↑</span><div class="crit-info"><div class="crit-casa">${b.casa}</div><div class="crit-ospite">${b.ospite}</div></div></div>`;bodyHTML+=`</div>`;}
+    if(day.multiCI) bodyHTML+=`<div class="note-box">Questo giorno ha <strong>${day.checkins.length} check-in</strong>. Organizzarsi in anticipo per completare tutte le pulizie in tempo.</div>`;
+    const card=document.createElement('div'); card.className=`crit-card level-${level}`;
+    const badges=[(day.multiCI?`<span class="cbadge multi">⚠ ${day.checkins.length} check-in</span>`:''),(day.sameCasa?`<span class="cbadge same">⚡ CI+CO stessa struttura</span>`:'')].filter(Boolean).join('');
+    card.innerHTML=`<div class="crit-head"><div class="crit-date">${dateLabel}</div><div class="crit-badges">${badges}</div><span class="crit-toggle">▼</span></div><div class="crit-body">${bodyHTML}</div>`;
+    card.querySelector('.crit-head').addEventListener('click',()=>card.classList.toggle('open'));
+    list.appendChild(card);
+  }
+}
+renderCal();
+renderCritical();
+</script>
+</body>
+</html>
