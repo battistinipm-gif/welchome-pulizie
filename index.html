@@ -87,6 +87,14 @@
   .crit-ospite { font-size: 12px; color: var(--muted); }
   .note-box { background: #fffbf0; border: 1px solid #f0d080; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #7a5c00; margin-top: 8px; }
   .no-critical { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  /* Check-in list */
+  .ci-month-group { margin-bottom: 20px; }
+  .ci-month-label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .ci-item { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; margin-bottom: 4px; border-left: 3px solid var(--ci); }
+  .ci-item-date { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--text); min-width: 60px; }
+  .ci-item-casa { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .ci-item-ospite { font-size: 12px; color: var(--muted); }
+  .ci-item-nights { font-size: 11px; color: var(--ih); background: var(--ih-bg); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
   .info-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; line-height: 1.7; }
   .info-box h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
   .type-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
@@ -104,6 +112,7 @@
 </header>
 <div class="tabs">
   <button class="tab active" data-tab="cal">📅 Calendario</button>
+  <button class="tab" data-tab="checkins">📋 Tutti i Check-in</button>
   <button class="tab" data-tab="critical">⚠️ Giorni Critici</button>
   <button class="tab" data-tab="guide">📋 Guida Rapida</button>
 </div>
@@ -124,6 +133,11 @@
   </div>
   <div class="dow-row" id="dow"></div>
   <div class="cal-grid" id="calgrid"></div>
+</div>
+<div class="panel" id="panel-checkins">
+  <div class="section-title">Tutti i Check-in 2026 <span class="badge" id="ci-count-badge">0</span></div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Elenco completo di tutti gli arrivi in ordine cronologico.</p>
+  <div id="ci-list"></div>
 </div>
 <div class="panel" id="panel-critical">
   <div class="section-title">Giorni critici <span class="badge" id="crit-count-badge">0</span></div>
@@ -174,7 +188,7 @@ const BOOKINGS = [
   {ci:"2026-04-22",co:"2026-04-24",casa:"Casa nel Borgo",ospite:"Marina Alves"},
   {ci:"2026-04-30",co:"2026-05-03",casa:"Agantonio",ospite:"Martina Pieri"},
   {ci:"2026-04-30",co:"2026-05-06",casa:"Sotto la Quercia",ospite:"Karatina Svitekova"},
-  {ci:"2026-05-10",co:"2026-05-15",casa:"Via San Rocco",ospite:"Korkrum Kerri"},
+  {ci:"2026-05-10",co:"2026-05-15",casa:"Via San Rocco",ospite:"Korkrum kerri"},
   {ci:"2026-05-11",co:"2026-05-13",casa:"Villa Elena",ospite:"Monia Cardo"},
   {ci:"2026-05-20",co:"2026-05-23",casa:"Agantonio",ospite:"Enrico Minante"},
   {ci:"2026-05-28",co:"2026-05-30",casa:"Via San Rocco",ospite:"Mirella Bonomelli"},
@@ -197,6 +211,7 @@ const BOOKINGS = [
   {ci:"2026-07-27",co:"2026-08-18",casa:"Villa Elena",ospite:"Olag Dauev"},
   {ci:"2026-08-01",co:"2026-08-07",casa:"Casa Verde Oliva",ospite:"Angelo Città"},
   {ci:"2026-08-01",co:"2026-08-09",casa:"Casa Letizia",ospite:"Aldana Barone"},
+  {ci:"2026-08-01",co:"2026-08-08",casa:"Miramare",ospite:"Napolitano Antonio"},
   {ci:"2026-08-06",co:"2026-08-16",casa:"Sotto la Quercia",ospite:"Ilaria Bressani"},
   {ci:"2026-08-08",co:"2026-08-18",casa:"Miramare",ospite:"Andrea Tarozzi"},
   {ci:"2026-08-08",co:"2026-08-16",casa:"Casa nel Borgo",ospite:"Pascal Nucara"},
@@ -205,6 +220,7 @@ const BOOKINGS = [
   {ci:"2026-08-09",co:"2026-08-22",casa:"Casa Letizia",ospite:"Marek Turcan"},
   {ci:"2026-08-09",co:"2026-08-22",casa:"Casa Bella Gialla",ospite:"Giovanna Di Matteo"},
   {ci:"2026-08-10",co:"2026-08-22",casa:"Casa Verde Oliva",ospite:"Dea Valkanova"},
+  {ci:"2026-08-10",co:"2026-08-21",casa:"Casa Nicola",ospite:"Michele Deponti"},
   {ci:"2026-08-14",co:"2026-08-21",casa:"Villa Nella",ospite:"Gianni Barbetta"},
   {ci:"2026-08-17",co:"2026-08-23",casa:"Nel Cuore di Lanciano",ospite:"Alessandro Brunetti"},
   {ci:"2026-08-17",co:"2026-08-24",casa:"Sotto la Quercia",ospite:"Gennaro Pascale"},
@@ -225,7 +241,7 @@ const allCases=["Tutte le strutture",...[...new Set(BOOKINGS.map(b=>b.casa))].so
 const todayDate=new Date(); todayDate.setHours(0,0,0,0);
 let curYear=2026,curMonth=4,filterCasa="all";
 function pDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
-function fmtDate(s){const d=pDate(s);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;}
+function fmtDate(s){const d=pDate(s);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;}
 function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 function shortCasa(s){return s.length>17?s.slice(0,15)+'…':s;}
 function getDayData(dateStr,fCasa){
@@ -247,6 +263,7 @@ document.querySelectorAll('.tab').forEach(t=>{
     t.classList.add('active');
     document.getElementById('panel-'+t.dataset.tab).classList.add('active');
     if(t.dataset.tab==='critical') renderCritical();
+    if(t.dataset.tab==='checkins') renderCheckins();
   });
 });
 const sel=document.getElementById('fcasa');
@@ -318,11 +335,7 @@ function renderCritical(){
     const dateLabel=`${String(day.d).padStart(2,'0')} ${MONTHS[day.m]} 2026`;
     const sharedCasas=[...new Set(day.checkins.map(b=>b.casa))].filter(c=>day.checkouts.some(x=>x.casa===c));
     let bodyHTML='';
-    if(sharedCasas.length>0){
-      bodyHTML+=`<div class="crit-section"><div class="crit-section-title">⚡ Check-in e check-out stessa struttura — pulire subito dopo la partenza</div>`;
-      for(const casa of sharedCasas){const ciB=day.checkins.find(b=>b.casa===casa);const coB=day.checkouts.find(b=>b.casa===casa);bodyHTML+=`<div class="crit-row cico-row"><span class="crit-icon">🔄</span><div class="crit-info"><div class="crit-casa">${casa}</div><div class="crit-ospite">Partenza: ${coB.ospite} · Arrivo: ${ciB.ospite}</div></div></div>`;}
-      bodyHTML+=`</div>`;
-    }
+    if(sharedCasas.length>0){bodyHTML+=`<div class="crit-section"><div class="crit-section-title">⚡ Check-in e check-out stessa struttura — pulire subito dopo la partenza</div>`;for(const casa of sharedCasas){const ciB=day.checkins.find(b=>b.casa===casa);const coB=day.checkouts.find(b=>b.casa===casa);bodyHTML+=`<div class="crit-row cico-row"><span class="crit-icon">🔄</span><div class="crit-info"><div class="crit-casa">${casa}</div><div class="crit-ospite">Partenza: ${coB.ospite} · Arrivo: ${ciB.ospite}</div></div></div>`;}bodyHTML+=`</div>`;}
     const otherCI=day.checkins.filter(b=>!sharedCasas.includes(b.casa));
     if(otherCI.length>0){bodyHTML+=`<div class="crit-section"><div class="crit-section-title">↓ Check-in da preparare (${otherCI.length})</div>`;for(const b of otherCI) bodyHTML+=`<div class="crit-row ci-row"><span class="crit-icon">↓</span><div class="crit-info"><div class="crit-casa">${b.casa}</div><div class="crit-ospite">${b.ospite}</div></div></div>`;bodyHTML+=`</div>`;}
     const otherCO=day.checkouts.filter(b=>!sharedCasas.includes(b.casa));
@@ -333,6 +346,39 @@ function renderCritical(){
     card.innerHTML=`<div class="crit-head"><div class="crit-date">${dateLabel}</div><div class="crit-badges">${badges}</div><span class="crit-toggle">▼</span></div><div class="crit-body">${bodyHTML}</div>`;
     card.querySelector('.crit-head').addEventListener('click',()=>card.classList.toggle('open'));
     list.appendChild(card);
+  }
+}
+function renderCheckins(){
+  const MONTHS_SHORT=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+  const sorted=[...BOOKINGS].sort((a,b)=>a.ci.localeCompare(b.ci));
+  document.getElementById('ci-count-badge').textContent=sorted.length;
+  const list=document.getElementById('ci-list');
+  list.innerHTML='';
+  let lastMonth='';
+  let groupEl=null;
+  for(const b of sorted){
+    const ciDate=pDate(b.ci);
+    const monthKey=`${ciDate.getFullYear()}-${ciDate.getMonth()}`;
+    if(monthKey!==lastMonth){
+      lastMonth=monthKey;
+      groupEl=document.createElement('div');
+      groupEl.className='ci-month-group';
+      const lbl=document.createElement('div');
+      lbl.className='ci-month-label';
+      lbl.textContent=`${MONTHS[ciDate.getMonth()]} ${ciDate.getFullYear()}`;
+      groupEl.appendChild(lbl);
+      list.appendChild(groupEl);
+    }
+    const coDate=pDate(b.co);
+    const nights=Math.round((coDate-ciDate)/(1000*60*60*24));
+    const item=document.createElement('div');
+    item.className='ci-item';
+    item.innerHTML=`
+      <div class="ci-item-date">${String(ciDate.getDate()).padStart(2,'0')} ${MONTHS_SHORT[ciDate.getMonth()]}</div>
+      <div class="ci-item-casa">${b.casa}</div>
+      <div class="ci-item-ospite">${b.ospite}</div>
+      <div class="ci-item-nights">${nights} notti</div>`;
+    groupEl.appendChild(item);
   }
 }
 renderCal();
