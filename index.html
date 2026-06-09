@@ -60,8 +60,7 @@
   #tooltip { position: fixed; z-index: 9999; background: var(--text); color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.12s; max-width: 210px; line-height: 1.5; }
   #tooltip.show { opacity: 1; }
   .section-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .section-title .badge { font-size: 11px; background: var(--warn-bg); color: var(--warn); border-radius: 20px; padding: 2px 9px; font-weight: 600; }
-  /* Check-in list */
+  .section-title .badge { font-size: 11px; border-radius: 20px; padding: 2px 9px; font-weight: 600; }
   .ci-month-group { margin-bottom: 20px; }
   .ci-month-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
   .ci-item { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--ci); border-radius: 8px; padding: 8px 12px; margin-bottom: 4px; }
@@ -69,7 +68,6 @@
   .ci-item-casa { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
   .ci-item-ospite { font-size: 12px; color: var(--muted); flex: 1; }
   .ci-item-nights { font-size: 11px; color: var(--ih); background: var(--ih-bg); border-radius: 4px; padding: 2px 7px; white-space: nowrap; font-weight: 500; }
-  /* Critical */
   .critical-list { display: flex; flex-direction: column; gap: 10px; }
   .crit-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .crit-card.level-high { border-left: 4px solid var(--alert); }
@@ -102,7 +100,6 @@
   .type-badge { border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; margin-top: 1px; }
   @media (max-width: 600px) {
     .day { min-height: 72px; padding: 4px; } .pill { font-size: 8px; } .month-title { font-size: 16px; }
-    .ci-item { flex-wrap: wrap; gap: 4px; }
     .ci-item-ospite { display: none; }
   }
 </style>
@@ -121,8 +118,6 @@
   <button class="tab" data-tab="critical">⚠️ Giorni Critici</button>
   <button class="tab" data-tab="guide">❓ Guida</button>
 </div>
-
-<!-- CALENDARIO -->
 <div class="panel active" id="panel-cal">
   <div class="month-jump" id="mjump"></div>
   <div class="nav-row">
@@ -141,22 +136,16 @@
   <div class="dow-row" id="dow"></div>
   <div class="cal-grid" id="calgrid"></div>
 </div>
-
-<!-- TUTTI I CHECK-IN -->
 <div class="panel" id="panel-checkins">
   <div class="section-title">Tutti i Check-in 2026 <span class="badge" id="ci-count-badge" style="background:var(--ci-bg);color:var(--ci)">0</span></div>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Elenco completo di tutti gli arrivi in ordine cronologico, con struttura, ospite e numero di notti.</p>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Elenco completo di tutti gli arrivi in ordine cronologico.</p>
   <div id="ci-list"></div>
 </div>
-
-<!-- GIORNI CRITICI -->
 <div class="panel" id="panel-critical">
-  <div class="section-title">Giorni critici <span class="badge" id="crit-count-badge">0</span></div>
+  <div class="section-title">Giorni critici <span class="badge" id="crit-count-badge" style="background:var(--warn-bg);color:var(--warn)">0</span></div>
   <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Giorni con più check-in contemporanei o check-in e check-out nella stessa struttura. Clicca su un giorno per i dettagli.</p>
   <div class="critical-list" id="crit-list"></div>
 </div>
-
-<!-- GUIDA -->
 <div class="panel" id="panel-guide">
   <div class="info-box">
     <h3>Come leggere il calendario</h3>
@@ -167,16 +156,14 @@
   </div>
   <div class="info-box">
     <h3>Giorni con più check-in ⚠</h3>
-    <p>Quando ci sono 2 o più check-in nello stesso giorno (anche in case diverse), organizzarsi in anticipo. Controlla la tab <strong>Giorni Critici</strong> per vedere le strutture coinvolte.</p>
+    <p>Quando ci sono 2 o più check-in nello stesso giorno (anche in case diverse), organizzarsi in anticipo. Controlla la tab <strong>Giorni Critici</strong> per i dettagli.</p>
   </div>
   <div class="info-box">
     <h3>Contatti</h3>
     <p style="color:var(--muted)">Per aggiornamenti o chiarimenti contattare Matteo — WelcHome.</p>
   </div>
 </div>
-
 <div id="tooltip"></div>
-
 <script>
 const BOOKINGS = [
   {ci:"2026-01-04",co:"2026-01-06",casa:"Sotto la Quercia",ospite:"Matteo Locaputo"},
@@ -203,7 +190,7 @@ const BOOKINGS = [
   {ci:"2026-04-22",co:"2026-04-24",casa:"Casa nel Borgo",ospite:"Marina Alves"},
   {ci:"2026-04-30",co:"2026-05-03",casa:"Agantonio",ospite:"Martina Pieri"},
   {ci:"2026-04-30",co:"2026-05-06",casa:"Sotto la Quercia",ospite:"Karatina Svitekova"},
-  {ci:"2026-05-10",co:"2026-05-15",casa:"Via San Rocco",ospite:"Korkrum kerri"},
+  {ci:"2026-05-10",co:"2026-05-15",casa:"Via San Rocco",ospite:"Korkrum Kerri"},
   {ci:"2026-05-11",co:"2026-05-13",casa:"Villa Elena",ospite:"Monia Cardo"},
   {ci:"2026-05-20",co:"2026-05-23",casa:"Agantonio",ospite:"Enrico Minante"},
   {ci:"2026-05-28",co:"2026-05-30",casa:"Via San Rocco",ospite:"Mirella Bonomelli"},
@@ -214,11 +201,13 @@ const BOOKINGS = [
   {ci:"2026-06-13",co:"2026-06-20",casa:"Agantonio",ospite:"Orazio Di Nunzio"},
   {ci:"2026-06-14",co:"2026-06-26",casa:"Villa Nella",ospite:"Adrian Motylewski"},
   {ci:"2026-06-20",co:"2026-06-27",casa:"Sotto la Quercia",ospite:"Luigi Miscia"},
+  {ci:"2026-06-21",co:"2026-06-24",casa:"Villa Elena",ospite:"Roberto Fontana"},
   {ci:"2026-06-26",co:"2026-06-29",casa:"Via Cavour",ospite:"Ernesta Gargarella"},
   {ci:"2026-06-28",co:"2026-07-08",casa:"Casa Letizia",ospite:"Sara Gandossini"},
   {ci:"2026-07-03",co:"2026-07-10",casa:"Villa Nella",ospite:"Maria Teresa Jaravata Gabrillo"},
   {ci:"2026-07-04",co:"2026-07-11",casa:"Miramare",ospite:"Simona Chieli"},
   {ci:"2026-07-04",co:"2026-07-19",casa:"Sotto la Quercia",ospite:"Lubini Nicoletta"},
+  {ci:"2026-07-06",co:"2026-07-11",casa:"Agantonio",ospite:"Eliana Ferri"},
   {ci:"2026-07-10",co:"2026-07-15",casa:"Casa Letizia",ospite:"Silvia Beltramea"},
   {ci:"2026-07-11",co:"2026-07-17",casa:"Miramare",ospite:"Bruno Oleksi"},
   {ci:"2026-07-12",co:"2026-07-21",casa:"Agantonio",ospite:"Rita Piancastelli"},
@@ -229,6 +218,7 @@ const BOOKINGS = [
   {ci:"2026-07-27",co:"2026-08-18",casa:"Villa Elena",ospite:"Olag Dauev"},
   {ci:"2026-08-01",co:"2026-08-07",casa:"Casa Verde Oliva",ospite:"Angelo Città"},
   {ci:"2026-08-01",co:"2026-08-08",casa:"Miramare",ospite:"Napolitano Antonio"},
+  {ci:"2026-08-03",co:"2026-08-10",casa:"Villa Nella",ospite:"Annamaria Cantadori"},
   {ci:"2026-08-06",co:"2026-08-16",casa:"Sotto la Quercia",ospite:"Ilaria Bressani"},
   {ci:"2026-08-08",co:"2026-08-18",casa:"Miramare",ospite:"Andrea Tarozzi"},
   {ci:"2026-08-08",co:"2026-08-16",casa:"Casa nel Borgo",ospite:"Pascal Nucara"},
@@ -247,7 +237,7 @@ const BOOKINGS = [
   {ci:"2026-08-20",co:"2026-08-27",casa:"Miramare",ospite:"Crisian Regazzi"},
   {ci:"2026-08-20",co:"2026-08-29",casa:"Agantonio",ospite:"Alessandra Galli"},
   {ci:"2026-08-22",co:"2026-08-26",casa:"Via Cavour",ospite:"Elena Luraghi"},
-  {ci:"2026-08-22",co:"2026-08-31",casa:"Casa Letizia",ospite:"Valerio Rossi"},
+  {ci:"2026-08-22",co:"2026-08-31",casa:"Casa Letizia",ospite:"Valeria Rossi"},
   {ci:"2026-08-23",co:"2026-08-28",casa:"Nel Cuore di Lanciano",ospite:"Sara Viscardi"},
   {ci:"2026-08-28",co:"2026-08-30",casa:"Via San Rocco",ospite:"Elisa Magnetta"},
   {ci:"2026-09-03",co:"2026-09-06",casa:"Sotto la Quercia",ospite:"Raffaele Guasco"},
@@ -342,8 +332,7 @@ function renderCheckins(){
     const ciDate=pDate(b.ci);
     const monthKey=`${ciDate.getFullYear()}-${ciDate.getMonth()}`;
     if(monthKey!==lastMonth){
-      lastMonth=monthKey;
-      groupEl=document.createElement('div'); groupEl.className='ci-month-group';
+      lastMonth=monthKey; groupEl=document.createElement('div'); groupEl.className='ci-month-group';
       const lbl=document.createElement('div'); lbl.className='ci-month-label';
       lbl.textContent=`${MONTHS[ciDate.getMonth()]} ${ciDate.getFullYear()}`;
       groupEl.appendChild(lbl); list.appendChild(groupEl);
