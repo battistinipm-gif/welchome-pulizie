@@ -210,10 +210,14 @@ const BOOKINGS = [
   {ci:"2026-07-04",co:"2026-07-19",casa:"Sotto la Quercia",ospite:"Lubini Nicoletta"},
   {ci:"2026-07-04",co:"2026-07-11",casa:"Casa Nicola",ospite:"Ahmad Alkhalil"},
   {ci:"2026-07-10",co:"2026-07-15",casa:"Casa Letizia",ospite:"Silvia Beltramea"},
+  {ci:"2026-07-10",co:"2026-07-13",casa:"Via San Rocco",ospite:"Mario Ucci"},
   {ci:"2026-07-11",co:"2026-07-17",casa:"Miramare",ospite:"Bruno Oleksi"},
   {ci:"2026-07-15",co:"2026-07-22",casa:"Casa Verde Oliva",ospite:"Mariano Sambucari"},
-  {ci:"2026-07-18",co:"2026-07-25",casa:"Casa Letizia",ospite:"Emidio Colabrese"},
+  {ci:"2026-07-17",co:"2026-07-25",casa:"Casa Letizia",ospite:"Emidio Colabrese"},
   {ci:"2026-07-19",co:"2026-07-26",casa:"Via Cavour",ospite:"Sara di Benedetto"},
+  {ci:"2026-07-21",co:"2026-08-03",casa:"Sotto la Quercia",ospite:"Sindey Outtara"},
+  {ci:"2026-07-21",co:"2026-07-26",casa:"Via San Rocco",ospite:"Luigi Vinci"},
+  {ci:"2026-07-22",co:"2026-08-02",casa:"Villa Nella",ospite:"Nicolle Bongers"},
   {ci:"2026-07-24",co:"2026-07-30",casa:"Agantonio",ospite:"Daniele Charreron"},
   {ci:"2026-07-26",co:"2026-08-01",casa:"Casa Letizia",ospite:"Massimo Marfella"},
   {ci:"2026-07-27",co:"2026-08-18",casa:"Villa Elena",ospite:"Olag Dauev"},
@@ -223,7 +227,6 @@ const BOOKINGS = [
   {ci:"2026-08-02",co:"2026-08-08",casa:"Casa Letizia",ospite:"Barbara Maresti"},
   {ci:"2026-08-03",co:"2026-08-10",casa:"Villa Nella",ospite:"Annamaria Cantadori"},
   {ci:"2026-08-03",co:"2026-08-11",casa:"Nel Cuore di Lanciano",ospite:"Giulio Querzoli"},
-  {ci:"2026-08-06",co:"2026-08-16",casa:"Sotto la Quercia",ospite:"Ilaria Bressani"},
   {ci:"2026-08-08",co:"2026-08-18",casa:"Miramare",ospite:"Andrea Tarozzi"},
   {ci:"2026-08-08",co:"2026-08-16",casa:"Casa nel Borgo",ospite:"Pascal Nucara"},
   {ci:"2026-08-09",co:"2026-08-16",casa:"Via San Rocco",ospite:"Loredana Benassi"},
@@ -233,29 +236,31 @@ const BOOKINGS = [
   {ci:"2026-08-10",co:"2026-08-22",casa:"Casa Verde Oliva",ospite:"Dea Valkanova"},
   {ci:"2026-08-10",co:"2026-08-21",casa:"Casa Nicola",ospite:"Michele Deponti"},
   {ci:"2026-08-10",co:"2026-08-22",casa:"Casa Letizia",ospite:"Eugenio Romor"},
+  {ci:"2026-08-11",co:"2026-08-17",casa:"Nel Cuore di Lanciano",ospite:"Juanna Rosa"},
   {ci:"2026-08-14",co:"2026-08-21",casa:"Villa Nella",ospite:"Gianni Barbetta"},
   {ci:"2026-08-16",co:"2026-08-21",casa:"Via Cavour",ospite:"Vincenzo Patti"},
   {ci:"2026-08-17",co:"2026-08-23",casa:"Nel Cuore di Lanciano",ospite:"Alessandro Brunetti"},
   {ci:"2026-08-17",co:"2026-08-24",casa:"Sotto la Quercia",ospite:"Gennaro Pascale"},
   {ci:"2026-08-18",co:"2026-08-25",casa:"Via San Rocco",ospite:"Giulia Attenasio"},
   {ci:"2026-08-20",co:"2026-08-25",casa:"Casa nel Borgo",ospite:"Margaret Aitken"},
-  {ci:"2026-08-20",co:"2026-08-27",casa:"Miramare",ospite:"Crisian Regazzi"},
   {ci:"2026-08-20",co:"2026-08-29",casa:"Agantonio",ospite:"Alessandra Galli"},
   {ci:"2026-08-22",co:"2026-08-26",casa:"Via Cavour",ospite:"Elena Luraghi"},
   {ci:"2026-08-22",co:"2026-08-31",casa:"Casa Letizia",ospite:"Valeria Rossi"},
   {ci:"2026-08-23",co:"2026-08-28",casa:"Nel Cuore di Lanciano",ospite:"Sara Viscardi"},
   {ci:"2026-08-24",co:"2026-08-30",casa:"Casa Nicola",ospite:"Alessandro De Ascaniis"},
+  {ci:"2026-08-24",co:"2026-09-02",casa:"Sotto la Quercia",ospite:"Laura Capaldi"},
   {ci:"2026-09-03",co:"2026-09-06",casa:"Sotto la Quercia",ospite:"Raffaele Guasco"},
   {ci:"2026-09-03",co:"2026-09-10",casa:"Agantonio",ospite:"Nicola Pirro"},
   {ci:"2026-09-07",co:"2026-09-19",casa:"Sotto la Quercia",ospite:"Daniele Lando"},
-  {ci:"2026-09-17",co:"2026-09-20",casa:"Casa Bella Gialla",ospite:"Giuseppe Fiorini"}
+  {ci:"2026-09-17",co:"2026-09-20",casa:"Casa Bella Gialla",ospite:"Giuseppe Fiorini"},
+  {ci:"2026-09-25",co:"2026-09-28",casa:"Nel Cuore di Lanciano",ospite:"Monique Dempsey"}
 ];
 const MONTHS=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 const MONTHS_S=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
 const DOWS=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
 const allCases=["Tutte le strutture",...[...new Set(BOOKINGS.map(b=>b.casa))].sort()];
 const todayDate=new Date(); todayDate.setHours(0,0,0,0);
-let curYear=2026,curMonth=5,filterCasa="all";
+let curYear=2026,curMonth=6,filterCasa="all";
 function pDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function fmtDate(s){const d=pDate(s);return `${d.getDate()} ${MONTHS_S[d.getMonth()]}`;}
 function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
