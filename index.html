@@ -226,9 +226,8 @@ const BOOKINGS = [
   {ci:"2026-07-26",co:"2026-07-31",casa:"Casa Verde Oliva",ospite:"Erika Sciuttini"},
   {ci:"2026-07-27",co:"2026-08-03",casa:"Nel Cuore di Lanciano",ospite:"Salvatore Belsito"},
   {ci:"2026-07-28",co:"2026-08-03",casa:"Casa nel Borgo",ospite:"Donatella Chiodo"},
-  {ci:"2026-07-29",co:"2026-08-02",casa:"Via Cavour",ospite:"Marcello Bertolaccini"},
+  {ci:"2026-07-28",co:"2026-07-31",casa:"Miramare",ospite:"Baracca Pasquale"},
   {ci:"2026-07-29",co:"2026-08-03",casa:"Via San Rocco",ospite:"Luigi Piovano"},
-  {ci:"2026-07-30",co:"2026-08-08",casa:"Casa Nicola",ospite:"Cristina Agretti"},
   {ci:"2026-08-01",co:"2026-08-07",casa:"Casa Verde Oliva",ospite:"Angelo Città"},
   {ci:"2026-08-01",co:"2026-08-08",casa:"Miramare",ospite:"Napolitano Antonio"},
   {ci:"2026-08-02",co:"2026-08-08",casa:"Casa Letizia",ospite:"Barbara Maresti"},
@@ -244,6 +243,7 @@ const BOOKINGS = [
   {ci:"2026-08-09",co:"2026-08-16",casa:"Via Cavour",ospite:"David Mesa"},
   {ci:"2026-08-10",co:"2026-08-21",casa:"Casa Nicola",ospite:"Michele Deponti"},
   {ci:"2026-08-10",co:"2026-08-22",casa:"Casa Letizia",ospite:"Eugenio Romor"},
+  {ci:"2026-08-10",co:"2026-08-17",casa:"Villa Elena",ospite:"Paola Roana"},
   {ci:"2026-08-11",co:"2026-08-17",casa:"Nel Cuore di Lanciano",ospite:"Juanna Rosa"},
   {ci:"2026-08-12",co:"2026-08-17",casa:"Casa Verde Oliva",ospite:"Luca Maccarelli"},
   {ci:"2026-08-14",co:"2026-08-21",casa:"Villa Nella",ospite:"Gianni Barbetta"},
@@ -251,20 +251,20 @@ const BOOKINGS = [
   {ci:"2026-08-16",co:"2026-08-19",casa:"Casa nel Borgo",ospite:"Carolin Prusseit"},
   {ci:"2026-08-17",co:"2026-08-23",casa:"Nel Cuore di Lanciano",ospite:"Alessandro Brunetti"},
   {ci:"2026-08-17",co:"2026-08-24",casa:"Sotto la Quercia",ospite:"Gennaro Pascale"},
-  {ci:"2026-08-17",co:"2026-08-23",casa:"Casa Verde Oliva",ospite:"Bellini Anna"},
   {ci:"2026-08-18",co:"2026-08-25",casa:"Via San Rocco",ospite:"Giulia Attenasio"},
   {ci:"2026-08-19",co:"2026-08-26",casa:"Miramare",ospite:"Lara Olivieri"},
+  {ci:"2026-08-19",co:"2026-08-23",casa:"Villa Elena",ospite:"Silvia Marinelli"},
   {ci:"2026-08-20",co:"2026-08-25",casa:"Casa nel Borgo",ospite:"Margaret Aitken"},
   {ci:"2026-08-20",co:"2026-08-29",casa:"Agantonio",ospite:"Alessandra Galli"},
+  {ci:"2026-08-21",co:"2026-08-23",casa:"Via Cavour",ospite:"Sonia Bartolomeo"},
   {ci:"2026-08-22",co:"2026-08-31",casa:"Casa Letizia",ospite:"Valeria Rossi"},
-  {ci:"2026-08-23",co:"2026-08-28",casa:"Nel Cuore di Lanciano",ospite:"Sara Viscardi"},
+  {ci:"2026-08-23",co:"2026-08-28",casa:"Casa Verde Oliva",ospite:"Bruno Chiosi"},
   {ci:"2026-08-24",co:"2026-08-30",casa:"Casa Nicola",ospite:"Alessandro De Ascaniis"},
   {ci:"2026-08-24",co:"2026-09-02",casa:"Sotto la Quercia",ospite:"Laura Capaldi"},
   {ci:"2026-08-24",co:"2026-09-01",casa:"Villa Nella",ospite:"Pierfrancesco Montecchi"},
+  {ci:"2026-08-26",co:"2026-08-30",casa:"Via San Rocco",ospite:"Gianluca Mastrocola"},
   {ci:"2026-09-03",co:"2026-09-06",casa:"Sotto la Quercia",ospite:"Raffaele Guasco"},
-  {ci:"2026-09-03",co:"2026-09-10",casa:"Agantonio",ospite:"Nicola Pirro"},
   {ci:"2026-09-07",co:"2026-09-19",casa:"Sotto la Quercia",ospite:"Daniele Lando"},
-  {ci:"2026-09-17",co:"2026-09-20",casa:"Casa Bella Gialla",ospite:"Giuseppe Fiorini"},
   {ci:"2026-09-25",co:"2026-09-28",casa:"Nel Cuore di Lanciano",ospite:"Monique Dempsey"},
   {ci:"2026-10-21",co:"2026-10-23",casa:"Via San Rocco",ospite:"Mario Palmeiro"}
 ];
@@ -273,7 +273,7 @@ const MONTHS_S=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov
 const DOWS=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
 const allCases=["Tutte le strutture",...[...new Set(BOOKINGS.map(b=>b.casa))].sort()];
 const todayDate=new Date(); todayDate.setHours(0,0,0,0);
-let curYear=2026,curMonth=6,filterCasa="all";
+let curYear=2026,curMonth=7,filterCasa="all";
 function pDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function fmtDate(s){const d=pDate(s);return `${d.getDate()} ${MONTHS_S[d.getMonth()]}`;}
 function ds(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
